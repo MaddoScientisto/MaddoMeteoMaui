@@ -1,0 +1,70 @@
+﻿@page "/"
+
+@using MaddoMeteoMaui.Data
+@using System.Reflection
+@using System.Diagnostics
+@inject WeatherForecastService ForecastService
+
+<h1>Meteo</h1>
+<button @onclick="GetWeather">Ricarica</button>
+
+@if (forecast == null)
+{
+	<p><em>Loading...</em></p>
+}
+else
+{
+	
+
+	<table class="table">
+		<thead>
+			<tr>
+				<th>Proprietà</th>
+				<th>Valore</th>
+            </tr>
+		</thead>
+        <tbody>
+        @foreach (PropertyInfo prop in forecast.GetType().GetProperties())
+        {
+            <tr>
+                <td>@prop.Name</td>
+                <td>@prop.GetValue(forecast, null).ToString()</td>
+            </tr>
+        }
+
+       
+        </tbody>
+	</table>
+}
+
+@if (showError)
+{
+    <p>@error</p>
+}
+
+@code {
+	private WeatherForecast forecast;
+    private string error;
+    private bool showError = false;
+
+	protected override async Task OnInitializedAsync()
+	{
+	    await GetWeather();
+	}
+
+    protected async Task GetWeather()
+    {
+        try
+        {
+            forecast = await ForecastService.GetForecastAsync();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Demystify());
+            error = e.ToStringDemystified();
+            showError = true;
+            //throw;
+        }
+        
+    }
+}
