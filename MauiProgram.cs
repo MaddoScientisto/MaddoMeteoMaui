@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Components.WebView.Maui;
+﻿using Blazorise;
+using Blazorise.Bootstrap;
+using Blazorise.Icons.FontAwesome;
+using Microsoft.AspNetCore.Components.WebView.Maui;
 using MaddoMeteoMaui.Data;
 
 namespace MaddoMeteoMaui;
@@ -21,6 +24,13 @@ public static class MauiProgram
 #endif
 
 		builder.Services.AddSingleton<WeatherForecastService>();
+
+        builder.Services.AddBlazorise(options =>
+            {
+                options.Immediate = true;
+            })
+            .AddBootstrapProviders()
+            .AddFontAwesomeIcons();
 
 		return builder.Build();
 	}
