@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace MaddoMeteoMaui.Data;
 
 public class WeatherForecast
@@ -13,6 +15,8 @@ public class WeatherForecast
 	public float RainMm { get; set; }
 	public float DailyRainIn { get; set; }
 	public float Pressure { get; set; }
+    [JsonPropertyName("batt_lvl")]
 	public float BattLvl { get; set; }
-	public float LightLvl { get; set; }
+    [JsonPropertyName("light_lvl")]
+    public float LightLvl { get; set; }
 }

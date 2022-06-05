@@ -46,17 +46,18 @@ else
 	private WeatherForecast forecast;
     private string error;
     private bool showError = false;
+    private string ip;
 
 	protected override async Task OnInitializedAsync()
 	{
 	    await GetWeather();
 	}
 
-    protected async Task GetWeather()
+    private async Task GetWeather()
     {
         try
         {
-            forecast = await ForecastService.GetForecastAsync();
+            forecast = await ForecastService.GetForecastAsync(Preferences.Default.Get("ip", "http://192.168.100.170"));
         }
         catch (Exception e)
         {
@@ -67,4 +68,6 @@ else
         }
         
     }
+
+ 
 }

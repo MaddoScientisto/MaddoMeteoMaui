@@ -16,7 +16,7 @@
 		<ApplicationTitle>MaddoMeteoMaui</ApplicationTitle>
 
 		<!-- App Identifier -->
-		<ApplicationId>com.companyname.maddometeomaui</ApplicationId>
+		<ApplicationId>science.maddoscientisto.meteo</ApplicationId>
 		<ApplicationIdGuid>8C6665B3-AE7B-46A7-A423-CDB39F4B40D7</ApplicationIdGuid>
 
 		<!-- Versions -->
@@ -54,5 +54,9 @@
 	  <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
 	  <PackageReference Include="RestSharp" Version="107.3.0" />
 	</ItemGroup>
+
+	
+
+	<ProjectExtensions><VisualStudio><UserProperties XamarinHotReloadDebuggerTimeoutExceptionMaddoMeteoMauiHideInfoBar="True" /></VisualStudio></ProjectExtensions>
 
 </Project>

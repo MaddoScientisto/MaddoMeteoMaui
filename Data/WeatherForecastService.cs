@@ -4,15 +4,12 @@ namespace MaddoMeteoMaui.Data;
 
 public class WeatherForecastService
 {
-	private static readonly string[] Summaries = new[]
-	{
-		"Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-	};
 
-	public async Task<WeatherForecast> GetForecastAsync()
+
+	public async Task<WeatherForecast> GetForecastAsync(string address)
     {
 
-        var client = new RestClient("http://192.168.100.170");
+        var client = new RestClient(address);
         var request = new RestRequest();
         var response = await client.GetAsync<WeatherForecast>(request);
 
