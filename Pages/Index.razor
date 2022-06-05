@@ -3,10 +3,14 @@
 @using MaddoMeteoMaui.Data
 @using System.Reflection
 @using System.Diagnostics
+@using Humanizer
+@using UnitsNet
+@using UnitsNet.Units
 @inject WeatherForecastService ForecastService
 
 <h1>Meteo</h1>
-<button @onclick="GetWeather">Ricarica</button>
+
+<Button Color="Color.Primary" Clicked="@GetWeather" Loading="@isLoading">Ricarica</Button>
 
 @if (forecast == null)
 {
@@ -14,28 +18,66 @@
 }
 else
 {
-	
-
-	<table class="table">
-		<thead>
-			<tr>
-				<th>Proprietà</th>
-				<th>Valore</th>
-            </tr>
-		</thead>
-        <tbody>
-        @foreach (PropertyInfo prop in forecast.GetType().GetProperties())
-        {
-            <tr>
-                <td>@prop.Name</td>
-                <td>@prop.GetValue(forecast, null).ToString()</td>
-            </tr>
-        }
-
-       
-        </tbody>
-	</table>
+    <Table>
+        <TableHeader>
+            <TableRow>
+                <TableHeaderCell>Proprietà</TableHeaderCell>
+                <TableHeaderCell>Valore</TableHeaderCell>
+            </TableRow>
+        </TableHeader>
+        <TableBody>
+            <TableRow>
+                <TableRowHeader>Direzione del vento</TableRowHeader>
+                <TableRowCell>@GetDirectionName(forecast.Winddir)</TableRowCell>
+            </TableRow>
+            <TableRow>
+                <TableRowHeader>Velocità del vento (KM/h)</TableRowHeader>
+                <TableRowCell>@forecast.WindSpeedKmh </TableRowCell>
+            </TableRow>
+            <TableRow>
+                <TableRowHeader>Direzione Folata</TableRowHeader>
+                <TableRowCell>@GetDirectionName(forecast.WindGustDir) </TableRowCell>
+            </TableRow>
+            <TableRow>
+                <TableRowHeader>Velocità Folata (KM/h)</TableRowHeader>
+                <TableRowCell>@forecast.WindGustKmh </TableRowCell>
+            </TableRow>
+            <TableRow>
+                <TableRowHeader>Umidità</TableRowHeader>
+                <TableRowCell>@forecast.Humidity </TableRowCell>
+            </TableRow>
+            <TableRow>
+                <TableRowHeader>Temperatura (C°)</TableRowHeader>
+                <TableRowCell>@forecast.Tempc </TableRowCell>
+            </TableRow>
+            <TableRow>
+                <TableRowHeader>Temperatura Esterna (C°)</TableRowHeader>
+                <TableRowCell>@forecast.TempExtC </TableRowCell>
+            </TableRow>
+            <TableRow>
+                <TableRowHeader>Pioggia (mm)</TableRowHeader>
+                <TableRowCell>@forecast.RainMm </TableRowCell>
+            </TableRow>
+            <TableRow>
+                <TableRowHeader>Pressione (hPa)</TableRowHeader>
+                <TableRowCell>@ConvertPressure(forecast.Pressure) </TableRowCell>
+            </TableRow>
+            <TableRow>
+                <TableRowHeader>Livello di luce</TableRowHeader>
+                <TableRowCell>@forecast.LightLvl </TableRowCell>
+            </TableRow>
+           @* @foreach (PropertyInfo prop in forecast.GetType().GetProperties())
+            {
+                <TableRow>
+                    <TableRowHeader>@prop.Name</TableRowHeader>
+                    <TableRowCell>@prop.GetValue(forecast, null).ToString()</TableRowCell>
+                </TableRow>
+            }*@
+        </TableBody>
+    </Table>
 }
+
+
 
 @if (showError)
 {
@@ -43,10 +85,33 @@ else
 }
 
 @code {
+    [Inject] INotificationService NotificationService { get; set; }
 	private WeatherForecast forecast;
     private string error;
     private bool showError = false;
+    private bool isLoading = false;
 
+    Dictionary<int, string> CardinalDirections = new()
+    {
+        {0, "N"},
+        {1, "NNE"},
+        {2, "NE"},
+        {3, "ENE"},
+        {4, "E"},
+        {5, "ESE"},
+        {6, "SE"},
+        {7, "SSE"},
+        {8, "S"},
+        {9, "SSW"},
+        {10, "SW"},
+        {11, "WSW"},
+        {12, "W"},
+        {13, "WNW"},
+        {14, "NW"},
+        {15, "NNW"},
+        {16, "N"}
+
+    };
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -55,18 +120,42 @@ else
 
     private async Task GetWeather()
     {
+        if (isLoading) return;
         try
         {
+            error = String.Empty;
+            
+            isLoading = true;
+    //await NotificationService.Info("Caricamento in corso...");
             forecast = await ForecastService.GetForecastAsync(Preferences.Default.Get("ip", "http://192.168.100.170"));
+    //await NotificationService.Success("Dati caricati!");
+
         }
         catch (Exception e)
         {
             Console.WriteLine(e.Demystify());
             error = e.ToStringDemystified();
             showError = true;
-            //throw;
+            await NotificationService.Error(error);
+    //throw;
+        }
+        finally
+        {
+            isLoading = false;
         }
         
+    }
+
+    private string GetDirectionName(float direction)
+    {
+        var normalizedValue = direction % 360;
+        var dirDivided = Convert.ToInt32(MathF.Round(normalizedValue / 22.5f));
+        return CardinalDirections[dirDivided];
+    }
+
+    private double ConvertPressure(double basePressure)
+    {
+        return new Pressure(basePressure, PressureUnit.Pascal).Hectopascals;
     }
 
  
